@@ -1,3 +1,5 @@
+from PIL.ImageOps import grayscale
+from cv2 import grabCut
 from pynput import keyboard
 import pyautogui
 import pydirectinput
@@ -45,7 +47,7 @@ def main():
     # Go right or left
     flip = 1
 
-    # Turn 90 degrees, value will be different for you, im on a 4k monitor
+    # Turn 90 degrees, value will be different for you
     flipMouseMove = 1000
 
     # Making tuple with data from the window for later use
@@ -56,126 +58,141 @@ def main():
 
     # Main bot loop, runs forever use CTRL+C to turn it off
     while True:
-        if ingame is False:
-            print("On est pas en jeu. On cherche à ce connecter.")
-            pyautogui.press('j')
-            time.sleep(.5)
-            if pyautogui.locateOnScreen("imgs/ingame.png", grayscale=True, confidence=.65, region=region) is not None:
-                print("On est déjà en jeu.")
+        # Chargement du jeu
+        if pyautogui.locateOnScreen("imgs/tropplein.png", grayscale=False, confidence=.65, region=region) is not None:
+            # On est trop chargé, on arrête tout le farm
+            print("Trop plein ... on attent que tu te vide tout seul ou que tu prennes une potion.")
+            time.sleep(10)
+        else:
+            # On peut farmer, on est pas plein.
+            if ingame is False:
+                print("On est pas en jeu. On cherche à ce connecter.")
                 pyautogui.press('j')
-                ingame = True
-                continue
-            if pyautogui.locateOnScreen("imgs/continue.png", grayscale=True, confidence=.50, region=region) is not None:
-                posContinue = pyautogui.locateOnScreen("imgs/continue.png")
-                if posContinue is not None:
-                    print("On a trouvé le premier Ecran de lancement.")
-                    pyautogui.moveTo(posContinue[0] + (posContinue[2]/3), posContinue[1] + (posContinue[3]/3))
-                    clicage()
-                else:
-                    print("Bug 1")
-            if pyautogui.locateOnScreen("imgs/continue0.png", grayscale=True, confidence=.50, region=region) is not None:
-                posContinue1 = pyautogui.locateOnScreen("imgs/continue0.png")
-                if posContinue1 is not None:
-                    print("On a trouvé le premier Ecran de lancement.")
-                    pyautogui.moveTo(posContinue1[0] + (posContinue1[2]/3), posContinue1[1] + (posContinue1[3]/3))
-                    clicage()
-                else:
-                    print("Bug 2")
-            if pyautogui.locateOnScreen("imgs/jouer.png", grayscale=True, confidence=.50, region=region) is not None:
                 time.sleep(.5)
-                posJouer = pyautogui.locateOnScreen("imgs/jouer.png")
-                if posJouer is not None:
-                    print("On a trouvé le premier Ecran des personnages.")
-                    pyautogui.moveTo(posJouer[0] + (posJouer[2]/3), posJouer[1] + (posJouer[3]/3))
-                    clicage()
+                if pyautogui.locateOnScreen("imgs/ingame.png", grayscale=True, confidence=.65, region=region) is not None:
+                    print("On est déjà en jeu.")
+                    pyautogui.press('j')
                     ingame = True
                     continue
-                else:
-                    print("Bug 3")
-        else:
-            # Find that image on screen, in that region, with a confidence of 65%
-            print("On est en jeu, on peut farmer.")
-            if pyautogui.locateOnScreen("imgs/e0.png", grayscale=True, confidence=.65, region=region) is not None and peche is False:
-                print("On récolte")
-                pyautogui.press('e')
-                if pyautogui.locateOnScreen("imgs/pioche5.png", grayscale=True, confidence=.90, region=region) is not None:
-                    print("On récole du pierre.")
-                    while pyautogui.locateOnScreen("imgs/pioche5.png", grayscale=True, confidence=.90, region=region) is not None:
-                        time.sleep(.1)
-                elif pyautogui.locateOnScreen("imgs/hache5.png", grayscale=True, confidence=.90, region=region) is not None:
-                    print("On récolte de la bois.")
-                    while pyautogui.locateOnScreen("imgs/hache5.png", grayscale=True, confidence=.90, region=region) is not None:
-                        time.sleep(.1)
-                print("On a fini de récolter")
-                continue
-
-            peche = False
-            if pyautogui.locateOnScreen("imgs/peche4.png", grayscale=True, confidence=.85, region=region) is not None:
-                print("On passe en mode je pêche.")
-                while pyautogui.locateOnScreen("imgs/peche4.png", grayscale=True, confidence=.85, region=region) is not None:
-                    #on reste en mode peche
-                    print("Et go pêcher.")
-                    if pyautogui.locateOnScreen("imgs/lancer.png", grayscale=True, confidence=.60, region=region) is not None or pyautogui.locateOnScreen("imgs/attentepeche.png", grayscale=True, confidence=.85, region=region) is not None:
-                        if pyautogui.locateOnScreen("imgs/attentepeche.png", grayscale=True, confidence=.60, region=region) is None:
-                            pyautogui.mouseDown()
-                            time.sleep(2 * random.random())
-                            pyautogui.mouseUp()
-                            time.sleep(2)
-                        print("On attend que ca morde")
-                        while pyautogui.locateOnScreen("imgs/attentepeche.png", grayscale=True, confidence=.60, region=region) is not None:
-                            time.sleep(.1)
-                        print("Ca mord !!!")
-                        pyautogui.click()
-                        while pyautogui.locateOnScreen("imgs/lancer.png", grayscale=True, confidence=.60, region=region) is None:
-                            print("On remonte le poisson")
-                            pyautogui.mouseDown()
-                            time.sleep(.3 * random.random())
-                            pyautogui.mouseUp()
-                            time.sleep(.2 * random.random())
-                        print("Parfait, maintenant ANTIAFK!")
-                        # Pour l'animation si gros poissons
-                        time.sleep(5)
-                        pyautogui.keyDown('d')
-                        time.sleep(.5)
-                        pyautogui.keyUp('d')
-                        pyautogui.keyDown('a')
-                        time.sleep(.5)
-                        pyautogui.keyUp('a')
-                        print("Fini ce tour. On reprend")
+                if pyautogui.locateOnScreen("imgs/continue.png", grayscale=True, confidence=.5, region=region) is not None:
+                    posContinue = pyautogui.locateOnScreen("imgs/continue.png")
+                    if posContinue is not None:
+                        print("On a trouvé le premier Ecran de lancement.")
+                        pyautogui.moveTo(posContinue[0] + (posContinue[2]/3), posContinue[1] + (posContinue[3]/3))
+                        clicage()
+                    else:
+                        print("Bug 1")
+                if pyautogui.locateOnScreen("imgs/continue0.png", grayscale=True, confidence=.5, region=region) is not None:
+                    posContinue1 = pyautogui.locateOnScreen("imgs/continue0.png")
+                    if posContinue1 is not None:
+                        print("On a trouvé le premier Ecran de lancement.")
+                        pyautogui.moveTo(posContinue1[0] + (posContinue1[2]/3), posContinue1[1] + (posContinue1[3]/3))
+                        clicage()
+                    else:
+                        print("Bug 2")
+                if pyautogui.locateOnScreen("imgs/jouer.png", grayscale=True, confidence=.5, region=region) is not None:
+                    time.sleep(.5)
+                    posJouer = pyautogui.locateOnScreen("imgs/jouer.png")
+                    if posJouer is not None:
+                        print("On a trouvé le premier Ecran des personnages.")
+                        pyautogui.moveTo(posJouer[0] + (posJouer[2]/3), posJouer[1] + (posJouer[3]/3))
+                        clicage()
+                        ingame = True
                         continue
+                    else:
+                        print("Bug 3")
             else:
-                # Do I got to explain?
-                pyautogui.keyDown('w')
+                if pyautogui.locateOnScreen("imgs/peche4.png", grayscale=True, confidence=.85, region=region) is not None:
+                    # On passe en mode Pêche
+                    print("On passe en mode je pêche.")
+                    while pyautogui.locateOnScreen("imgs/peche4.png", grayscale=True, confidence=.85, region=region) is not None:
+                        # On reste en mode peche
+                        if pyautogui.locateOnScreen('imgs/pause.png', grayscale=True, confidence=.65, region=region) is not None:
+                            #On met le bot en pause
+                            print("Bot en pause")
+                            time.sleep(5)
+                        else:
+                            print("Et go pêcher.")
+                            if pyautogui.locateOnScreen("imgs/lancer.png", grayscale=True, confidence=.65, region=region) is not None or pyautogui.locateOnScreen("imgs/attentepeche.png", grayscale=True, confidence=.85, region=region) is not None:
+                                if pyautogui.locateOnScreen("imgs/attentepeche.png", grayscale=True, confidence=.65, region=region) is None:
+                                    pyautogui.mouseDown()
+                                    time.sleep(2 * random.random() + 0.5)
+                                    pyautogui.mouseUp()
+                                    time.sleep(2)
+                                print("On attend que ca morde")
+                                while pyautogui.locateOnScreen("imgs/attentepeche.png", grayscale=True, confidence=.65, region=region) is not None:
+                                    time.sleep(.05)
+                                print("Ca mord !!!")
+                                pyautogui.click()
+                                while pyautogui.locateOnScreen("imgs/lancer.png", grayscale=True, confidence=.85, region=region) is None:
+                                    print("On remonte le poisson")
+                                    pyautogui.mouseDown()
+                                    while pyautogui.locateOnScreen('imgs/nodanger.png', grayscale=True, confidence=.65) is not None:
+                                        time.sleep(.1)
+                                    pyautogui.mouseUp()
+                                    time.sleep(.3 * random.random())
+                                pyautogui.press('escape')
+                                time.sleep(3)
+                                pyautogui.press('escape')
+                                # Pour l'animation si gros poissons
+                                if pyautogui.locateOnScreen('imgs/antiafk.png', grayscale=True, confidence=.65, region=region):
+                                    print("Anti AFK détecté.")
+                                    pyautogui.keyDown('d')
+                                    time.sleep(.5)
+                                    pyautogui.keyUp('d')
+                                    time.sleep(.5)
+                                    pyautogui.keyDown('a')
+                                    time.sleep(.5)
+                                    pyautogui.keyUp('a')
+                                    time.sleep(2)
+                                    pyautogui.press('tab')
+                                    posReparer = pyautogui.locateOnScreen('imgs/reparer.png')
+                                    pyautogui.moveTo(posReparer[0] + (posReparer[2]/2), posReparer[1] + (posReparer[3]/2))
+                                    clicage()
+                                    posReparer = pyautogui.locateOnScreen('imgs/reparer1.png')
+                                    pyautogui.moveTo(posReparer[0] + (posReparer[2]/2), posReparer[1] + (posReparer[3]/2))
+                                    clicage()
+                                    pyautogui.press('tab')
+                                else:
+                                    time.sleep(1)
+                                print("Fini ce tour. On reprend")
+                                continue
+                else:
+                    if pyautogui.locateOnScreen('imgs/pause.png', grayscale=True, confidence=.65, region=region) is not None:
+                        #On met le bot en pause
+                        print("Bot en pause")
+                        time.sleep(5)
+                    else:
+                        print("On est en jeu, on peut farmer.")
 
-                # Randomly move foward 0 - 1.5 seconds
-                temp = 1.5 * random.random()
-                currentFoward += temp
-                time.sleep(temp)
+                        # Do I got to explain?
+                        pyautogui.keyDown('w')
 
-                # Brah, you know
-                pyautogui.keyUp('w')
-
-                # Flippy flip if you hitty hit the max move time (fowardMoveTotal)
-                if currentFoward >= fowardMoveTotal:
-                    # Reset the move foward
-                    currentFoward = 0
-
-                    # Move the mouse 90 degrees
-                    pydirectinput.move(flipMouseMove * flip, 1, relative=True)
-
-                    # Move Foward 1.5 secs
-                    pyautogui.keyDown('w')
-                    time.sleep(1.5)
-                    pyautogui.keyUp('w')
-
-                    # Move the mouse 90 degrees
-                    pydirectinput.move(flipMouseMove * flip, 1, relative=True)
-
-                    # Flippy flippy the value. Evil math.
-                    flip *= -1
-
-                # Sleeping for the animation
-                time.sleep(.1)
+                        while pyautogui.locateOnScreen("imgs/e0.png", grayscale=True, confidence=.65, region=region) is None:
+                            time.sleep(.05)
+                            
+                        pyautogui.keyUp('w')
+                        
+                        print("On récolte")
+                        pyautogui.press('e')
+                        if pyautogui.locateOnScreen("imgs/pioche5.png", grayscale=True, confidence=.9, region=region) is not None:
+                            print("On récole de la pierre.")
+                            while pyautogui.locateOnScreen("imgs/pioche5.png", grayscale=True, confidence=.9, region=region) is not None:
+                                time.sleep(.01)
+                        elif pyautogui.locateOnScreen("imgs/hache5.png", grayscale=True, confidence=.9, region=region) is not None:
+                            print("On récolte du bois.")
+                            while pyautogui.locateOnScreen("imgs/hache5.png", grayscale=True, confidence=.9, region=region) is not None:
+                                time.sleep(.01)
+                        elif pyautogui.locateOnScreen("imgs/recolter4.png", grayscale=True, confidence=.9, region=region) is not None:
+                            print("On recolte des herbes.")
+                            while pyautogui.locateOnScreen("imgs/recolter4.png", grayscale=True, confidence=.9, region=region) is not None:
+                                time.sleep(.01)
+                        else:
+                            print("On récolte un truc sans outil")
+                            while pyautogui.locateOnScreen("imgs/enrecolte.png", grayscale=True, confidence=0.65, region=region) is not None:
+                                time.sleep(.01)
+                        print("On a fini de récolter")
+                        continue
 
 
 # Runs the main function
