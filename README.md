@@ -18,5 +18,5 @@ If you have python and the 4 packages you are good to go. Load up New World on y
 ```
 python main.py
 ```
-**We are always looking for new Volunteers to join our Champions!
-If you have any ideas for videos or programs, let us know!**
+
+During farming session, for "pause" the bot, just press "ESCAPE" and the bot auto pause. At this moment, you can move your mouse on the bot console and press CTRL+C to shutdown it.
